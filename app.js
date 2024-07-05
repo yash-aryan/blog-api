@@ -6,15 +6,14 @@ import debug from 'debug';
 import { connect } from 'mongoose';
 import 'dotenv/config';
 import { fileURLToPath } from 'url';
-
-// import routes
-import indexRouter from './routes/index.js';
+import apiRouter from './routes/routes.js';
 
 const app = express();
 
 // connect db
 (async () => {
 	try {
+		debug('Connecting to database...');
 		await connect(process.env.MONGODB_URI);
 	} catch (err) {
 		debug(err);
@@ -24,14 +23,13 @@ const app = express();
 // set middlewares
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, '/public')));
 
-// set routes
-const prefixPath = '/api/v1/';
-app.use(prefixPath, indexRouter);
+// route api
+app.use('/api/v1/', apiRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -41,7 +39,7 @@ app.use((req, res, next) => {
 // error handler
 app.use((err, req, res, next) => {
 	// sends json with error status and message
-	res.status(err.status || 500).json({ status: err.status, message: err.message });
+	res.status(err.status || 500).json({ success: false, message: err.message });
 });
 
 export default app;
