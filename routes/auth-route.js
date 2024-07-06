@@ -1,18 +1,10 @@
 import { Router } from 'express';
-import { generateToken } from './../auth/passport.js';
+import { loginUser, registerUser } from '../controllers/auth-controller.js';
 
 const router = Router();
 
-router.post('/register', (req, res) => {});
+router.post('/register', registerUser);
 
-router.post('/login', async (req, res) => {
-	const { email, password } = req.body;
-	// check db for matching user
-	if (email === 'a@a.com' && password === 'a') {
-		const token = generateToken({ id: 0 });
-		return res.status(200).json({ success: true, message: 'Auth Passed!', token });
-	}
-	return res.status(401).json({ success: false, message: 'Auth Failed!' });
-});
+router.post('/login', loginUser);
 
 export default router;
