@@ -1,9 +1,26 @@
 import { Router } from 'express';
-import { getAllPosts } from './../controllers/post-controller.js'; 
+import { checkAuth } from '../auth/passport.js';
+import {
+	createPost,
+	editPostById,
+	getAllPosts,
+	getPostById,
+} from './../controllers/post-controller.js';
 
 const router = Router();
 
-// GET all posts
-router.get('/', getAllPosts);
+router
+	.route('/:postId')
+	// get post by id
+	.get(getPostById)
+	// edit post by id
+	.put(checkAuth(), editPostById);
+
+router
+	.route('/')
+	// get all posts
+	.get(getAllPosts)
+	// create new post
+	.post(checkAuth(), createPost);
 
 export default router;

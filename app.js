@@ -3,9 +3,9 @@ import express from 'express';
 import path from 'path';
 import logger from 'morgan';
 import debug from 'debug';
+import { fileURLToPath } from 'url';
 import { connect } from 'mongoose';
 import 'dotenv/config';
-import { fileURLToPath } from 'url';
 import apiRouter from './routes/routes.js';
 
 const app = express();
@@ -33,7 +33,7 @@ app.use('/api/v1/', apiRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-	next(createError(404));
+	next(createError(404, 'Page not found!'));
 });
 
 // error handler

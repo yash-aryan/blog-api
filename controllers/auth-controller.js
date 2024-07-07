@@ -69,8 +69,6 @@ export const registerUser = [
 		});
 		const savedUser = await user.save();
 		const token = generateToken({ id: savedUser.id });
-		return res
-			.status(200)
-			.json({ success: true, message: 'User registered!', user: savedUser, token });
+		res.status(200).json({ success: true, message: 'User registered!', user: savedUser, token });
 	}),
 ];
