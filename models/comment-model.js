@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const postSchema = new Schema({
+const commentSchema = new Schema({
 	content: { type: String, required: true },
 	createdAt: { type: Date, required: true },
 	modifiedAt: Date,
@@ -8,4 +8,4 @@ const postSchema = new Schema({
 	author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
-export default model('Post', postSchema);
+export default model('Comment', commentSchema);

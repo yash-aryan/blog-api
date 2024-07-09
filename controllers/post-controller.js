@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import Post from './../models/post-model.js';
 import { body, validationResult } from 'express-validator';
@@ -7,6 +8,21 @@ import { getPayloadFromToken } from './../auth/passport.js';
 export const getAllPosts = asyncHandler(async (req, res) => {
 	const posts = await Post.find().populate('author').exec();
 	res.json({ success: true, posts });
+});
+
+// GET post by id
+export const getPostById = asyncHandler(async (req, res) => {
+	const postId = req.params.postId;
+
+	if (!mongoose.Types.ObjectId.isValid(postId)) {
+		return res.status(404).json({ success: false, message: 'Post not found!' });
+	}
+
+	const post = await Post.findById(postId).populate('author').exec();
+
+	if (!post) return res.status(404).json({ success: false, message: 'Post not found!' });
+
+	res.json({ success: true, post });
 });
 
 // POST create new post
@@ -44,21 +60,33 @@ export const createPost = [
 			isPublished: req.body.publish,
 		});
 
-		post.save();
-		res.status(201).location().json({ success: true, message: 'Post created!', post });
+		const savedPost = await post.save();
+		res
+			.status(201)
+			.location('/' + savedPost.id)
+			.json({ success: true, message: 'Post created!', post });
 	}),
 ];
 
-// GET single post by id
-export const getPostById = asyncHandler(async (req, res) => {
-	const post = await Post.findById(req.params.postId).populate('author', 'comments').exec();
-
-	if (post) return res.json({ success: true, post });
-
-	res.status(404).json({ success: false, message: 'Post not found!' });
-});
-
+// PUT edit post by id
 export const editPostById = [
+	asyncHandler(async (req, res, next) => {
+		// Check to end response early with error 404
+		const postId = req.params.postId;
+
+		if (!mongoose.Types.ObjectId.isValid(postId)) {
+			return res.status(404).json({ success: false, message: 'Post not found!' });
+		}
+
+		const post = await Post.findById(postId).exec();
+
+		if (!post) {
+			return res.status(404).json({ success: false, message: 'Post not found!' });
+		}
+
+		res.locals.post = post;
+		next();
+	}),
 	postValidator,
 	asyncHandler(async (req, res) => {
 		const errors = validationResult(req);
@@ -69,18 +97,35 @@ export const editPostById = [
 				.json({ success: false, message: 'Invalid form input', errors: errors.array() });
 		}
 
-		await Post.updateOne(
-			{ _id: req.params.postId },
-			{
-				$set: {
-					title: req.body.title,
-					content: req.body.content,
-					modifiedAt: Date.now(),
-					isPublished: req.body.publish,
-				},
-			}
-		);
+		const { post } = res.locals;
 
-		res.status(204).json({ success: true });
+		await post.updateOne({
+			$set: {
+				title: req.body.title,
+				content: req.body.content,
+				modifiedAt: Date.now(),
+				isPublished: req.body.publish,
+			},
+		});
+
+		res.status(204).json();
 	}),
 ];
+
+// DELETE post by id
+export const deletePostById = asyncHandler(async (req, res) => {
+	const postId = req.params.postId;
+
+	if (!mongoose.Types.ObjectId.isValid(postId)) {
+		return res.status(404).json({ success: false, message: 'Post not found!' });
+	}
+
+	const post = await Post.findById(postId).exec();
+
+	if (!post) {
+		return res.status(404).json({ success: false, message: 'Post not found!' });
+	}
+
+	await post.deleteOne();
+	res.status(204).json({ success: true });
+});

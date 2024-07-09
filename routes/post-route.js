@@ -2,19 +2,24 @@ import { Router } from 'express';
 import { checkAuth } from '../auth/passport.js';
 import {
 	createPost,
+	deletePostById,
 	editPostById,
 	getAllPosts,
 	getPostById,
 } from './../controllers/post-controller.js';
+import commentRouter from './comment-route.js';
 
 const router = Router();
 
 router
+	.use('/:postId/comments', commentRouter)
 	.route('/:postId')
-	// get post by id
+	// get post
 	.get(getPostById)
-	// edit post by id
-	.put(checkAuth(), editPostById);
+	// edit post
+	.put(checkAuth(), editPostById)
+	// delete post
+	.delete(checkAuth(), deletePostById);
 
 router
 	.route('/')
