@@ -3,6 +3,10 @@ import express from 'express';
 import path from 'path';
 import logger from 'morgan';
 import debug from 'debug';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import { rateLimit } from 'express-rate-limit';
 import { fileURLToPath } from 'url';
 import { connect } from 'mongoose';
 import 'dotenv/config';
@@ -21,6 +25,20 @@ const app = express();
 })();
 
 // set middlewares
+app.use(
+	cors({
+		origin: '*',
+		methods: ['GET', 'PUT', 'POST', 'DELETE'],
+	})
+);
+app.use(
+	rateLimit({
+		limit: 20, // 20 requests per min
+		message: 'Too many requests! Try again later',
+	})
+);
+app.use(helmet());
+app.use(compression());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
