@@ -18,29 +18,29 @@ User details, posts, and comments are stored in a database using MongoDB on Mong
 
 To register, send a POST request to `/auth/register` with request body containing the `username`, `email`, `password`. The password should contain at least 12 characters with 1 uppercase, 1 number, and 1 symbol.
 
-```json
+```yaml
 // request body
 {
-	"username": "Alice",
-	"email": "alice@example.com",
-	"password": "!strongpassword!"
+  "username": "Alice",
+  "email": "alice@example.com",
+  "password": "!strongpassword!"
 }
 ```
 
 Upon success, the server will send json response containing the signed JWT and user object. The JWT expires in 2 days, and requires login after token expiry.
 
-```json
+```yaml
 // response body
 {
-	"success": true,
-	"message": "User registered!",
-	"user": {
-		"_id": <user id>,
-		"name": "Alice",
-		"email": "alice@example.com",
-		"password": <hashed salted password>,
-	},
-	"token": <json web token>
+  "success": true,
+  "message": "User registered!",
+  "user": {
+    "_id": <user id>,
+    "name": "Alice",
+    "email": "alice@example.com",
+    "password": <hashed salted password>,
+  },
+  "token": <json web token>
 }
 ```
 
@@ -48,12 +48,12 @@ Upon success, the server will send json response containing the signed JWT and u
 
 To login, send a POST request to `/auth/login` with request body containing the `email` and `password`. If the user credentials are correct, the response body will contain the new signed JWT.
 
-```json
+```yaml
 // response body
 {
-	"success": true,
-	"message": "Auth Passed!",
-	"token": <json web token>
+  "success": true,
+  "message": "Auth Passed!",
+  "token": <json web token>
 }
 ```
 
@@ -61,7 +61,7 @@ To login, send a POST request to `/auth/login` with request body containing the 
 
 To access protected routes, the request header needs to contain `Authorization` with the signed JWT appended to string 'Bearer '. The format **must** look like the following (containing the space between the text 'Bearer'):
 
-```json
+```yaml
 "Authorization": "Bearer <jsonwebtoken>"
 ```
 
